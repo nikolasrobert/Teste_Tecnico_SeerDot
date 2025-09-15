@@ -13,7 +13,10 @@ const Upload = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { setMetrics, setIsDataLoaded } = useData();
+
+  // --- ALTERAÇÃO 1: Adicionei 'setSalesData' do nosso contexto ---
+
+  const { setMetrics, setIsDataLoaded, setSalesData } = useData();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -43,46 +46,49 @@ const Upload = () => {
   };
 
   const processData = async () => {
-      if (!uploadedFile) return;
-      setIsProcessing(true);
+    if (!uploadedFile) return;
+    setIsProcessing(true);
     
-      const form = new FormData();
-      form.append("file", uploadedFile);
+    const form = new FormData();
+    form.append("file", uploadedFile);
     
-      try {
-        const res = await fetch(`${API_URL}/api/upload-sales/`, {
-          method: "POST",
-          body: form,
-        });
+    try {
+      const res = await fetch(`${API_URL}/api/upload-sales/`, {
+        method: "POST",
+        body: form,
+      });
     
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Falha no upload");
-        }
-    
-        const metrics = await res.json(); 
-    
-        setMetrics(metrics);         // mantém a lógica existente
-        setIsDataLoaded(true);
-    
-        toast({
-                  title: "Upload concluído",
-                  description: "Dados processados com sucesso.",
-                });
-    
-        navigate("/app/dashboard");
-    
-      } catch (err: any) {
-        toast({
-          title: "Erro",
-          description: err.message,
-          variant: "destructive",
-        });
-      } finally {
-        setIsProcessing(false);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Falha no upload");
       }
-    };
-
+    
+      // --- ALTERAÇÃO 2: CORREÇÃO PRINCIPAL ---
+      // Recebe a resposta completa do backend
+      const responseData = await res.json(); 
+    
+      // Desempacota a resposta e salva cada parte em seu devido lugar
+      setMetrics(responseData.metrics);    // Apenas as métricas
+      setSalesData(responseData.records);  // Apenas os dados brutos da planilha
+      setIsDataLoaded(true);
+    
+      toast({
+        title: "Upload concluído",
+        description: "Dados processados com sucesso.",
+      });
+    
+      navigate("/app/dashboard");
+    
+    } catch (err: any) {
+      toast({
+        title: "Erro",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="p-8 max-w-4xl mx-auto">

@@ -14,11 +14,10 @@ def _br_to_float(series: pd.Series) -> pd.Series:
     """
     return (
         series.astype(str)
-              .str.replace('.', ',', regex=False)  
-              .str.replace(',', '.', regex=False) 
+              .str.replace('.', '', regex=False)      # Remove o ponto de milhar
+              .str.replace(',', '.', regex=False)    # Troca a vírgula decimal por ponto
               .astype(float)
     )
-
 def load_csv_to_df(fh) -> pd.DataFrame:
     """Lê o CSV, valida colunas e normaliza tipos."""
     df = pd.read_csv(fh)

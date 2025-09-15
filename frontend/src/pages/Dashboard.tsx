@@ -3,6 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/context/DataContext";
 import Chart from "react-apexcharts";
 
+const Dashboard = () => {
+  const { metrics } = useData();
+
+  // --- CORREÇÃO APLICADA ---
+  // Agora verificamos não só se 'metrics' existe, mas também se uma de suas
+  // propriedades principais (como total_revenue) já foi carregada.
+  if (!metrics || metrics.total_revenue === undefined) {
+    return (
+      <div className="flex items-center justify-center h-[70vh] text-muted-foreground">
+        Faça o upload do CSV para ver o dashboard.
+      </div>
+    );
+  }
+
+
+
 const toBRL = (n: number) =>
   n.toLocaleString("pt-BR", {
     style: "currency",
@@ -10,16 +26,7 @@ const toBRL = (n: number) =>
     minimumFractionDigits: 2,
   });
 
-const Dashboard = () => {
-  const { metrics } = useData();
 
-  if (!metrics) {
-    return (
-      <div className="flex items-center justify-center h-[70vh] text-muted-foreground">
-        Faça o upload do CSV para ver o dashboard.
-      </div>
-    );
-  }
 
   const cards = [
     {
