@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { BarChart3, Upload } from "lucide-react";
+
+//importar Link de react-router-dom
 import { Link } from "react-router-dom";
 
 const Header = () => {
@@ -24,6 +26,11 @@ const Header = () => {
           </a>
         </nav>
 
+
+{/*
+  Substituído <a> por <Link> para navegação via React Router.
+   O <Link> garante a navegação correta dentro da aplicação.
+*/}
         <div className="flex items-center gap-3">
           <Button variant="analytics" size="sm" asChild>
             <Link to="/app/upload">

@@ -12,6 +12,9 @@ import { DataProvider } from "./context/DataContext";
 
 const queryClient = new QueryClient();
 
+// --- CORREÇÃO APLICADA ---
+//foi adicionado a propriedade basename e nomeado como "/static"
+//essa adição disse ao react router para ignorar o /static
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

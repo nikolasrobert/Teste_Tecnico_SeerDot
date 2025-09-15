@@ -7,10 +7,18 @@ REQUIRED = [
     "Customer_ID", "Region"
 ]
 
+
+
 def _br_to_float(series: pd.Series) -> pd.Series:
     """
     Converte strings no formato '1.234,56' → 1234.56.
     Mantém NaN caso o valor não seja parseável.
+    """
+    
+# --- CORREÇÃO APLICADA ---
+    """
+    # A ordem de substituição de caracteres estava invertida, gerando um float inválido a partir de strings como '2.500,00'.
+    # A lógica foi corrigida para primeiro remover o separador de milhar '.' e depois substituir a vírgula decimal ',' por um ponto.
     """
     return (
         series.astype(str)
@@ -64,7 +72,11 @@ def calculate_metrics(df: pd.DataFrame) -> dict[str, any]:
               .sort_values(ascending=False)
               .head(10)
               .apply(float)
-              .to_dict()
+              .to_dict()        
         ),
+
+
+#Agrupar todas as vendas pela coluna Region e somar o Total_Amount de cada grupo
+        "revenue_by_region": df.groupby("Region")["Total_Amount"].sum().to_dict(),
     }
     return metrics

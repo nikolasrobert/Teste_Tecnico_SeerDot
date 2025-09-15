@@ -7,8 +7,8 @@ const Dashboard = () => {
   const { metrics } = useData();
 
   // --- CORREÇÃO APLICADA ---
-  // Agora verificamos não só se 'metrics' existe, mas também se uma de suas
-  // propriedades principais (como total_revenue) já foi carregada.
+// Adicionada verificação de 'loading state'.
+// Impede que o componente tente renderizar os dados antes de estarem disponíveis, o que causava um crash ao tentar formatar um valor 'undefined' na função toBRL.
   if (!metrics || metrics.total_revenue === undefined) {
     return (
       <div className="flex items-center justify-center h-[70vh] text-muted-foreground">
