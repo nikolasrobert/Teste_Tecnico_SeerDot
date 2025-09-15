@@ -11,6 +11,14 @@ interface SalesData {
   Region: string;
 }
 
+// --- ADIÇÃO 1: Nova interface para a estrutura de um Top Cliente
+export interface TopCustomer {
+  Customer_ID: string;
+  units_sold: number;
+  total_revenue: number;
+  order_count: number;
+}
+
 // Indicadores que a API devolve
 export interface Metrics {
     total_revenue: number;
@@ -21,6 +29,8 @@ export interface Metrics {
     revenue_by_month: Record<string, number>;
     top_products: Record<string, number>;
     revenue_by_region: Record<string, number>;
+    // --- ADIÇÃO 2: Nova propriedade para a lista de Top Clientes
+    top_customers: TopCustomer[];
 }
 
 interface DataContextType {
@@ -28,8 +38,8 @@ interface DataContextType {
   setSalesData: (data: SalesData[]) => void;
   isDataLoaded: boolean;
   setIsDataLoaded: (loaded: boolean) => void;
-  metrics: Metrics | null;            
-  setMetrics: (m: Metrics) => void; 
+  metrics: Metrics | null;
+  setMetrics: (m: Metrics) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -46,12 +56,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSalesData,
         isDataLoaded,
         setIsDataLoaded,
-        metrics,        
-        setMetrics,       
+        metrics,
+        setMetrics,
       }}
     >
       {children}
-      </DataContext.Provider>
+    </DataContext.Provider>
   );
 };
 
