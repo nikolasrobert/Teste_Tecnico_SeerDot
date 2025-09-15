@@ -2,6 +2,7 @@ import { DollarSign, ShoppingCart, Users, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/context/DataContext";
 import Chart from "react-apexcharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const Dashboard = () => {
   const { metrics } = useData();
@@ -9,7 +10,9 @@ const Dashboard = () => {
   // --- CORREÇÃO APLICADA ---
 // Adicionada verificação de 'loading state'.
 // Impede que o componente tente renderizar os dados antes de estarem disponíveis, o que causava um crash ao tentar formatar um valor 'undefined' na função toBRL.
-  if (!metrics || metrics.total_revenue === undefined) {
+
+// Para rodar precisei deixar mais robusto ainda a verificação para esse commit
+  if (!metrics || metrics.total_revenue === undefined || !metrics.top_customers) {
     return (
       <div className="flex items-center justify-center h-[70vh] text-muted-foreground">
         Faça o upload do CSV para ver o dashboard.
@@ -116,6 +119,35 @@ const toBRL = (n: number) =>
     theme: { mode: "light" as const },
   };
 
+  //ALTERAÇÃO
+  // --- DADOS E OPÇÕES PARA O NOVO GRÁFICO DE REGIÃO ---
+// Aplicando a correção de ordenação para garantir a precisão dos dados
+const regionEntries = Object.entries(metrics.revenue_by_region).sort((a, b) =>
+  a[0].localeCompare(b[0])
+);
+const sortedRegionCategories = regionEntries.map((entry) => entry[0]);
+const sortedRegionValues = regionEntries.map((entry) => entry[1]);
+
+const regionSeries = [
+  {
+    name: "Receita",
+    data: sortedRegionValues,
+  },
+];
+
+const regionOptions = {
+  chart: { type: "bar" as const },
+  colors: chartColors, // Reutilizando a paleta de cores
+  xaxis: { categories: sortedRegionCategories },
+  yaxis: {
+    labels: { formatter: (v: number) => toBRL(v) },
+  },
+  dataLabels: { enabled: false }, // Gráficos de barra podem ficar poluídos com data labels
+  theme: { mode: "light" as const },
+};
+
+//FIMALTERAÇÃO
+
   /* ---------- render ---------- */
   return (
     <div className="p-8 space-y-8">
@@ -178,6 +210,49 @@ const toBRL = (n: number) =>
             <Chart options={topOptions} series={topSeries} type="bar" height="100%" />
           </CardContent>
         </Card>
+
+
+         {/* ----- Adicionando campo -----*/}
+         {/* Receita Região*/}
+        <Card className="border-analytics-primary/10">
+          <CardHeader>
+            <CardTitle className="text-foreground">Receita por Região</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <Chart options={regionOptions} series={regionSeries} type="bar" height="100%" />
+          </CardContent>
+        </Card>
+      
+
+         {/* ----- Adicionando campo -----*/}
+         {/* Top 5 Clientes*/}
+          <Card className="border-analytics-primary/10 lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-foreground">Top 5 Clientes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID do Cliente</TableHead>
+                    <TableHead className="text-right">Pedidos Feitos</TableHead>
+                    <TableHead className="text-right">Unidades Compradas</TableHead>
+                    <TableHead className="text-right">Faturamento Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {metrics.top_customers.map((customer) => (
+                    <TableRow key={customer.Customer_ID}>
+                      <TableCell className="font-medium">{customer.Customer_ID}</TableCell>
+                      <TableCell className="text-right">{customer.order_count}</TableCell>
+                      <TableCell className="text-right">{customer.units_sold.toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="text-right">{toBRL(customer.total_revenue)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
       </section>
     </div>
   );
