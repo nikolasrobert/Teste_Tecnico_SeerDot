@@ -75,8 +75,29 @@ def calculate_metrics(df: pd.DataFrame) -> dict[str, any]:
               .to_dict()        
         ),
 
+        
+
 
 #Agrupar todas as vendas pela coluna Region e somar o Total_Amount de cada grupo
         "revenue_by_region": df.groupby("Region")["Total_Amount"].sum().to_dict(),
+
+        #--- NOVA MÉTRICA DOS TOP 5 CLIENTES AQUI ---
+        
+        "top_customers": (
+            df.groupby('Customer_ID')
+            .agg(
+                # Soma a 'Quantity' para o ranking e para exibição
+                units_sold=('Quantity', 'sum'),
+                # Soma o 'Total_Amount' para exibição
+                total_revenue=('Total_Amount', 'sum'),
+                # Conta o número de pedidos (linhas) para exibição
+                order_count=('Date', 'count')
+            )
+            .sort_values(by='units_sold', ascending=False) # Ordena pelo critério
+            .head(5) # Pega os 5 maiores
+            .reset_index() # Transforma o índice (Customer_ID) em uma coluna
+            .to_dict('records') # Converte para uma lista de dicionários
+        ),
     }
     return metrics
+   
