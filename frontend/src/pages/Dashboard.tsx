@@ -116,6 +116,35 @@ const toBRL = (n: number) =>
     theme: { mode: "light" as const },
   };
 
+  //ALTERAÇÃO
+  // --- DADOS E OPÇÕES PARA O NOVO GRÁFICO DE REGIÃO ---
+// Aplicando a correção de ordenação para garantir a precisão dos dados
+const regionEntries = Object.entries(metrics.revenue_by_region).sort((a, b) =>
+  a[0].localeCompare(b[0])
+);
+const sortedRegionCategories = regionEntries.map((entry) => entry[0]);
+const sortedRegionValues = regionEntries.map((entry) => entry[1]);
+
+const regionSeries = [
+  {
+    name: "Receita",
+    data: sortedRegionValues,
+  },
+];
+
+const regionOptions = {
+  chart: { type: "bar" as const },
+  colors: chartColors, // Reutilizando a paleta de cores
+  xaxis: { categories: sortedRegionCategories },
+  yaxis: {
+    labels: { formatter: (v: number) => toBRL(v) },
+  },
+  dataLabels: { enabled: false }, // Gráficos de barra podem ficar poluídos com data labels
+  theme: { mode: "light" as const },
+};
+
+//FIMALTERAÇÃO
+
   /* ---------- render ---------- */
   return (
     <div className="p-8 space-y-8">
@@ -178,6 +207,17 @@ const toBRL = (n: number) =>
             <Chart options={topOptions} series={topSeries} type="bar" height="100%" />
           </CardContent>
         </Card>
+
+         {/* --- ADICIONE O NOVO CARD DO GRÁFICO AQUI --- */}
+        <Card className="border-analytics-primary/10">
+          <CardHeader>
+            <CardTitle className="text-foreground">Receita por Região</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <Chart options={regionOptions} series={regionSeries} type="bar" height="100%" />
+          </CardContent>
+        </Card>
+      
       </section>
     </div>
   );
